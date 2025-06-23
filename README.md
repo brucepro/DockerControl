@@ -1,3 +1,5 @@
+#FYI: Got bored today, and have been wanting to adjust some of my docker stuff. I thought it would be interesting to see what cursor could do from scratch. Here is the output. This is not optimized or checked, just the raw output. As I actually deploy it, I will add in some fixes. But it was an interesting exercise using the free plan on cursor. So. HERE THEIR BE DRAGONS!
+
 # 🏠 Homelab Infrastructure - Project Summary
 
 ## 📊 **Project Overview**
