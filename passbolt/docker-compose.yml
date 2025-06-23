@@ -1,0 +1,41 @@
+
+services:
+  passbolt:
+    image: passbolt/passbolt:latest
+    container_name: passbolt
+    restart: unless-stopped
+    ports:
+      - "4025:80"
+    volumes:
+      - ./data:/var/www/passbolt/webroot/img/public
+    environment:
+      - DATASOURCES_DEFAULT_HOST=passbolt-db
+      - DATASOURCES_DEFAULT_DATABASE=passbolt
+      - DATASOURCES_DEFAULT_USERNAME=passbolt
+      - DATASOURCES_DEFAULT_PASSWORD=passbolt
+      - TZ=UTC
+    depends_on:
+      - passbolt-db
+    networks:
+      - passbolt-network
+
+  passbolt-db:
+    image: mysql:8.0
+    container_name: passbolt-db
+    restart: unless-stopped
+    ports:
+      - "3311:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=passbolt
+      - MYSQL_USER=passbolt
+      - MYSQL_PASSWORD=passbolt
+      - MYSQL_ROOT_PASSWORD=passbolt
+      - TZ=UTC
+    networks:
+      - passbolt-network
+
+networks:
+  passbolt-network:
+    driver: bridge 

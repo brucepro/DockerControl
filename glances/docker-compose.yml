@@ -1,0 +1,89 @@
+services:
+  glances:
+    image: nicolargo/glances:latest
+    container_name: glances
+    restart: unless-stopped
+    ports:
+      - "4058:61208"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - /proc:/proc:ro
+    environment:
+      - GLANCES_OPT=-w
+      - TZ=UTC
+    privileged: true
+    networks:
+      - glances_network
+
+  # Alternative: Glances with InfluxDB for data persistence
+  glances-influxdb:
+    image: nicolargo/glances:latest
+    restart: unless-stopped
+    ports:
+      - "61210:61208"
+    environment:
+      - GLANCES_OPT=-w --export influxdb
+      - GLANCES_HOST=0.0.0.0
+      - GLANCES_PORT=61208
+      - GLANCES_USER=admin
+      - GLANCES_PASSWORD=password
+      - INFLUXDB_HOST=influxdb
+      - INFLUXDB_PORT=8086
+      - INFLUXDB_USER=glances
+      - INFLUXDB_PASSWORD=glances_password
+      - INFLUXDB_DB=glances
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/host/sys:ro
+      - /proc:/host/proc:ro
+    privileged: true
+    depends_on:
+      - influxdb
+    networks:
+      - glances_network
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: glances-influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./glances/influxdb:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
+      - DOCKER_INFLUXDB_INIT_ORG=glances
+      - DOCKER_INFLUXDB_INIT_BUCKET=glances
+      - TZ=UTC
+    networks:
+      - glances_network
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: glances-grafana
+    restart: unless-stopped
+    ports:
+      - "4059:3000"
+    volumes:
+      - ./glances/grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - TZ=UTC
+    depends_on:
+      - influxdb
+    networks:
+      - glances_network
+
+volumes:
+  glances_influxdb:
+  glances_grafana:
+
+networks:
+  glances_network:
+    driver: bridge 

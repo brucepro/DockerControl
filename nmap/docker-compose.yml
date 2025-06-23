@@ -1,0 +1,18 @@
+
+services:
+  nmap:
+    image: uzyexe/nmap:latest
+    container_name: nmap
+    restart: unless-stopped
+    ports:
+      - "4037:8080"
+    volumes:
+      - ./scans:/app/scans
+    environment:
+      - TZ=UTC
+    networks:
+      - nmap-network
+
+networks:
+  nmap-network:
+    driver: bridge 

@@ -1,0 +1,21 @@
+
+services:
+  openvpn:
+    image: kylemanna/openvpn:latest
+    container_name: openvpn
+    restart: unless-stopped
+    ports:
+      - "1194:1194/udp"
+    volumes:
+      - ./config:/etc/openvpn
+      - ./data:/var/lib/openvpn
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - TZ=UTC
+    networks:
+      - openvpn-network
+
+networks:
+  openvpn-network:
+    driver: bridge 

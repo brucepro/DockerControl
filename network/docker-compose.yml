@@ -1,0 +1,282 @@
+services:
+  # DNS Ad Blocker - Pi-hole
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: unless-stopped
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8082:80"
+    volumes:
+      - ./pihole/etc-pihole:/etc/pihole
+      - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+      - ./pihole/logs:/var/log
+    environment:
+      - TZ=UTC
+      - WEBPASSWORD=adminpassword
+      - PIHOLE_DNS_=8.8.8.8;8.8.4.4
+      - DNSMASQ_USER=pihole
+      - VIRTUAL_HOST=pihole.local
+      - PROXY_LOCATION=pihole
+      - ServerIP=192.168.1.10
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - network_services
+
+  # Network Monitoring - Uptime Kuma
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./uptime-kuma/data:/app/data
+    environment:
+      - UPTIME_KUMA_PORT=3001
+      - UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=false
+    networks:
+      - network_services
+
+  # Network Speed Test
+  speedtest:
+    image: linuxserver/speedtest:latest
+    container_name: speedtest
+    restart: unless-stopped
+    ports:
+      - "8085:8080"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    networks:
+      - network_services
+
+  # Network Scanner - Nmap
+  nmap:
+    image: uzyexe/nmap:latest
+    container_name: nmap
+    restart: unless-stopped
+    ports:
+      - "8084:8080"
+    volumes:
+      - ./nmap/scans:/app/scans
+    environment:
+      - TZ=UTC
+    networks:
+      - network_services
+
+  # Network Traffic Analyzer - ntopng
+  ntopng:
+    image: ntop/ntopng:latest
+    container_name: ntopng
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./ntopng/data:/var/lib/ntopng
+    environment:
+      - TZ=UTC
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - network_services
+
+  # Network Monitoring - Zabbix
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:latest
+    container_name: zabbix-server
+    restart: unless-stopped
+    ports:
+      - "10051:10051"
+    volumes:
+      - ./zabbix/server/alertscripts:/var/lib/zabbix/alertscripts
+      - ./zabbix/server/externalscripts:/var/lib/zabbix/externalscripts
+      - ./zabbix/server/export:/var/lib/zabbix/export
+      - ./zabbix/server/modules:/var/lib/zabbix/modules
+      - ./zabbix/server/odbc:/var/lib/zabbix/odbc
+      - ./zabbix/server/snmptraps:/var/lib/zabbix/snmptraps
+      - ./zabbix/server/ssh_keys:/var/lib/zabbix/ssh_keys
+      - ./zabbix/server/ssl/certs:/var/lib/zabbix/ssl/certs
+      - ./zabbix/server/ssl/keys:/var/lib/zabbix/ssl/keys
+      - ./zabbix/server/ssl/ssl_ca:/var/lib/zabbix/ssl/ssl_ca
+    environment:
+      - DB_SERVER_HOST=zabbix-db
+      - DB_SERVER_PORT=3306
+      - DB_SERVER_ROOT_USER=root
+      - DB_SERVER_ROOT_PASS=zabbix_pwd
+      - DB_SERVER_DBNAME=zabbix
+      - DB_SERVER_USER=zabbix
+      - DB_SERVER_PASS=zabbix_pwd
+      - TZ=UTC
+    depends_on:
+      - zabbix-db
+    networks:
+      - network_services
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-mysql:latest
+    container_name: zabbix-web
+    restart: unless-stopped
+    ports:
+      - "8086:8080"
+    volumes:
+      - ./zabbix/web/ssl/certs:/etc/ssl/nginx
+      - ./zabbix/web/ssl/keys:/etc/ssl/nginx
+    environment:
+      - DB_SERVER_HOST=zabbix-db
+      - DB_SERVER_PORT=3306
+      - DB_SERVER_ROOT_USER=root
+      - DB_SERVER_ROOT_PASS=zabbix_pwd
+      - DB_SERVER_DBNAME=zabbix
+      - DB_SERVER_USER=zabbix
+      - DB_SERVER_PASS=zabbix_pwd
+      - PHP_TZ=UTC
+    depends_on:
+      - zabbix-db
+      - zabbix-server
+    networks:
+      - network_services
+
+  zabbix-db:
+    image: mysql:8.0
+    container_name: zabbix-db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./zabbix/db/data:/var/lib/mysql
+      - ./zabbix/db/init:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix_pwd
+      - MYSQL_ROOT_PASSWORD=zabbix_pwd
+      - TZ=UTC
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - network_services
+
+  # Network Configuration Manager - NetBox
+  netbox:
+    image: netboxcommunity/netbox:latest
+    container_name: netbox
+    restart: unless-stopped
+    ports:
+      - "8087:8080"
+    volumes:
+      - ./netbox/data:/opt/netbox/netbox/media
+      - ./netbox/reports:/opt/netbox/netbox/reports
+      - ./netbox/scripts:/opt/netbox/netbox/scripts
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1,::1
+      - DB_NAME=netbox
+      - DB_USER=netbox
+      - DB_PASSWORD=netbox_pwd
+      - DB_HOST=netbox-db
+      - DB_PORT=5432
+      - REDIS_HOST=netbox-redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - SECRET_KEY=your-secret-key-here
+      - TZ=UTC
+    depends_on:
+      - netbox-db
+      - netbox-redis
+    networks:
+      - network_services
+
+  netbox-db:
+    image: postgres:15
+    container_name: netbox-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./netbox/db/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=netbox
+      - POSTGRES_USER=netbox
+      - POSTGRES_PASSWORD=netbox_pwd
+      - TZ=UTC
+    networks:
+      - network_services
+
+  netbox-redis:
+    image: redis:7-alpine
+    container_name: netbox-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./netbox/redis/data:/data
+    networks:
+      - network_services
+
+  # Network Backup - RANCID
+  rancid:
+    image: rancid/rancid:latest
+    container_name: rancid
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    volumes:
+      - ./rancid/data:/var/lib/rancid
+      - ./rancid/config:/etc/rancid
+    environment:
+      - TZ=UTC
+    networks:
+      - network_services
+
+  # Network Documentation - BookStack
+  bookstack:
+    image: linuxserver/bookstack:latest
+    container_name: bookstack
+    restart: unless-stopped
+    ports:
+      - "8089:80"
+    volumes:
+      - ./bookstack/config:/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+      - APP_URL=http://localhost:8089
+    depends_on:
+      - bookstack-db
+    networks:
+      - network_services
+
+  bookstack-db:
+    image: mysql:8.0
+    container_name: bookstack-db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./bookstack/db/data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=bookstack
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=bookstack_pwd
+      - MYSQL_ROOT_PASSWORD=bookstack_pwd
+      - TZ=UTC
+    networks:
+      - network_services
+
+volumes:
+  pihole_data:
+  uptime_kuma_data:
+  speedtest_data:
+  nmap_scans:
+  ntopng_data:
+  zabbix_data:
+  netbox_data:
+  rancid_data:
+  bookstack_data:
+
+networks:
+  network_services:
+    driver: bridge 

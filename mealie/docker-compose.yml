@@ -1,0 +1,62 @@
+
+services:
+  mealie:
+    image: hkotel/mealie:latest
+    container_name: mealie
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./data:/app/data
+      - ./recipes:/app/recipes
+      - ./backups:/app/backups
+    environment:
+      - TZ=UTC
+      - PUID=1000
+      - PGID=1000
+      - WEB_PORT=9000
+      - BASE_URL=http://localhost:9000
+      - DB_ENGINE=sqlite
+      - DEFAULT_GROUP=Home
+      - DEFAULT_EMAIL=admin@example.com
+      - DEFAULT_PASSWORD=MyPassword123
+      - TOKEN_TIME=48
+      - DISABLE_SIGNUP=false
+      - DISABLE_ANALYTICS=true
+    networks:
+      - mealie_network
+
+  mealie-api:
+    image: hkotel/mealie:latest
+    container_name: mealie-api
+    restart: unless-stopped
+    ports:
+      - "9001:9000"
+    volumes:
+      - ./data:/app/data
+      - ./recipes:/app/recipes
+      - ./backups:/app/backups
+    environment:
+      - TZ=UTC
+      - PUID=1000
+      - PGID=1000
+      - WEB_PORT=9000
+      - BASE_URL=http://localhost:9001
+      - DB_ENGINE=sqlite
+      - DEFAULT_GROUP=Home
+      - DEFAULT_EMAIL=admin@example.com
+      - DEFAULT_PASSWORD=MyPassword123
+      - TOKEN_TIME=48
+      - DISABLE_SIGNUP=false
+      - DISABLE_ANALYTICS=true
+    networks:
+      - mealie_network
+
+networks:
+  mealie_network:
+    driver: bridge
+
+volumes:
+  mealie_data:
+  mealie_recipes:
+  mealie_backups: 

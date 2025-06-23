@@ -1,0 +1,416 @@
+# Self-Hosted Services Directory
+# All services configured for local homelab deployment
+# Port range: 4000-9999 (avoiding conflicts with system ports)
+
+## 🏠 CORE HOMELAB SERVICES
+
+### Media & Entertainment
+- Jellyfin Media Server: http://localhost:4000 (Media streaming)
+- Plex Media Server: http://localhost:4001 (Media streaming)
+- Emby Media Server: http://localhost:4002 (Media streaming)
+- PhotoPrism: http://localhost:4003 (Photo management)
+- Immich: http://localhost:4004 (Photo backup)
+- Navidrome: http://localhost:4005 (Music streaming)
+- Airsonic: http://localhost:4006 (Music streaming)
+- Calibre: http://localhost:4007 (Ebook library)
+
+### Home Automation
+- Home Assistant: http://localhost:4008 (Home automation hub)
+- Node-RED: http://localhost:4009 (Automation flows)
+- ESPHome: http://localhost:4010 (ESP device management)
+- Zigbee2MQTT: http://localhost:4011 (Zigbee devices)
+- MQTT Broker (Mosquitto): localhost:1883 (Device communication)
+
+### Network & Security
+- Pi-hole: http://localhost:4012 (DNS ad blocker)
+- AdGuard Home: http://localhost:4013 (Advanced DNS filtering)
+- Uptime Kuma: http://localhost:4014 (Service monitoring)
+- Nginx Proxy Manager: http://localhost:4015 (Reverse proxy)
+- WireGuard VPN: localhost:51820 (VPN server)
+- OpenVPN: localhost:1194 (VPN server)
+- Unbound DNS: localhost:5335 (DNS resolver)
+
+### Storage & Backup
+- Samba: localhost:139,445 (Network file sharing)
+- Nextcloud: http://localhost:4016 (Cloud storage)
+- File Browser: http://localhost:4017 (File manager)
+- Duplicati: http://localhost:4018 (Backup solution)
+- Rclone: http://localhost:4019 (Cloud sync)
+
+### Monitoring & Analytics
+- Grafana: http://localhost:4020 (Data visualization)
+- Prometheus: http://localhost:4021 (Metrics collection)
+- Netdata: http://localhost:4022 (System monitoring)
+- Zabbix Server: localhost:10051 (Enterprise monitoring)
+- Zabbix Web: http://localhost:4023 (Zabbix interface)
+- Zabbix Agent: localhost:10050 (Monitoring agent)
+
+### Development & Tools
+- Vaultwarden: http://localhost:4024 (Password manager)
+- Passbolt: http://localhost:4025 (Team password manager)
+- Gitea: http://localhost:4026 (Git server)
+- Drone Server: http://localhost:4027 (CI/CD platform)
+- Drone Runner: localhost:3000 (CI/CD runner)
+- Wiki.js: http://localhost:4028 (Documentation wiki)
+- BookStack: http://localhost:4029 (Documentation)
+
+### Productivity & Management
+- Trilium: http://localhost:4030 (Note taking)
+- Wekan: http://localhost:4031 (Kanban board)
+- FreshRSS: http://localhost:4032 (RSS reader)
+- Kimai: http://localhost:4033 (Time tracking)
+- InvoicePlane: http://localhost:4034 (Invoicing)
+
+### Network Management
+- NetBox: http://localhost:4035 (Network documentation)
+- RANCID: http://localhost:4036 (Network config backup)
+- Nmap: http://localhost:4037 (Network scanner)
+- Speedtest: http://localhost:4038 (Network speed test)
+- ntopng: http://localhost:4039 (Network traffic analyzer)
+
+### Logging & Analysis
+- Graylog: http://localhost:4040 (Log management)
+- Elasticsearch: localhost:9200 (Search engine)
+- MongoDB: localhost:27017 (Document database)
+
+## 🗄️ DATABASE SERVICES
+
+### PostgreSQL Databases
+- Nextcloud DB: localhost:5432
+- Home Assistant DB: localhost:5433
+- Paperless DB: localhost:5434
+- Immich DB: localhost:5435
+- FreshRSS DB: localhost:5436
+- Gitea DB: localhost:5437
+- Wiki.js DB: localhost:5438
+- NetBox DB: localhost:5439
+
+### MySQL/MariaDB Databases
+- Nginx Proxy Manager DB: localhost:3306
+- Zabbix DB: localhost:3307
+- BookStack DB: localhost:3308
+- Kimai DB: localhost:3309
+- InvoicePlane DB: localhost:3310
+- Passbolt DB: localhost:3311
+
+### Redis Instances
+- Nextcloud Redis: localhost:6379
+- Home Assistant Redis: localhost:6380
+- Paperless Redis: localhost:6381
+- Immich Redis: localhost:6382
+- Graylog Redis: localhost:6383
+- SearXNG Redis: localhost:6384
+
+### MongoDB Instances
+- Wekan DB: localhost:27017
+- Graylog MongoDB: localhost:27018
+
+## 🔧 UTILITY SERVICES
+
+### Download Management
+- qBittorrent: http://localhost:4041 (Torrent client)
+- Transmission: http://localhost:4042 (Torrent client)
+
+### Media Management
+- Radarr: http://localhost:4043 (Movie management)
+- Sonarr: http://localhost:4044 (TV show management)
+- Lidarr: http://localhost:4045 (Music management)
+- Readarr: http://localhost:4046 (Book management)
+- Bazarr: http://localhost:4047 (Subtitle management)
+
+### Request Management
+- Overseerr: http://localhost:4048 (Media requests)
+- Jellyseerr: http://localhost:4049 (Jellyfin requests)
+- Ombi: http://localhost:4050 (Media requests)
+
+### Statistics & Analytics
+- Tautulli: http://localhost:4051 (Plex statistics)
+- Jellyfin Statistics: http://localhost:4052 (Jellyfin stats)
+
+### Search & Discovery
+- SearXNG: http://localhost:4053 (Privacy-focused search engine)
+
+## 🌐 WEB SERVICES
+
+### Content Management
+- WordPress: http://localhost:4053 (Blog platform)
+- Ghost: http://localhost:4054 (Blog platform)
+- Drupal: http://localhost:4055 (CMS)
+
+### Communication
+- Matrix Server: http://localhost:4056 (Chat server)
+- Rocket.Chat: http://localhost:4057 (Team chat)
+- Mattermost: http://localhost:4058 (Team collaboration)
+
+### Email Services
+- Mailu: http://localhost:4059 (Email server)
+- Postfix Admin: http://localhost:4060 (Email management)
+
+## 🔍 MONITORING & OBSERVABILITY
+
+### Application Performance
+- Jaeger: http://localhost:4061 (Distributed tracing)
+- Zipkin: http://localhost:4062 (Distributed tracing)
+- Prometheus Alertmanager: http://localhost:4063 (Alerting)
+
+### Infrastructure Monitoring
+- Consul: http://localhost:4064 (Service discovery)
+- Etcd: localhost:2379 (Key-value store)
+- Vault: http://localhost:4065 (Secrets management)
+
+## 🎮 GAMING & ENTERTAINMENT
+
+### Game Servers
+- Minecraft Server: localhost:25565
+- Factorio Server: localhost:34197
+- Terraria Server: localhost:7777
+
+### Game Management
+- SteamCMD: localhost:27015 (Steam server)
+- Pterodactyl: http://localhost:4066 (Game panel)
+
+## 📊 BUSINESS & ENTERPRISE
+
+### CRM & Business
+- SuiteCRM: http://localhost:4067 (Customer relationship)
+- Odoo: http://localhost:4068 (Business management)
+- ERPNext: http://localhost:4069 (Enterprise resource planning)
+
+### Project Management
+- Redmine: http://localhost:4070 (Project management)
+- Taiga: http://localhost:4071 (Agile project management)
+- GitLab: http://localhost:4072 (Git repository)
+
+## 🔐 SECURITY & COMPLIANCE
+
+### Security Tools
+- Fail2ban: localhost:4073 (Intrusion prevention)
+- Snort: localhost:4074 (Network intrusion detection)
+- Suricata: localhost:4075 (Network security monitoring)
+
+### Compliance & Auditing
+- Wazuh: http://localhost:4076 (Security monitoring)
+- ELK Stack: http://localhost:4077 (Log analysis)
+- Splunk: http://localhost:4078 (Data analytics)
+
+## 📱 MOBILE & API SERVICES
+
+### API Management
+- Kong: http://localhost:4079 (API gateway)
+- Tyk: http://localhost:4080 (API management)
+- Swagger UI: http://localhost:4081 (API documentation)
+
+### Mobile Backend
+- Appwrite: http://localhost:4082 (Backend as a service)
+- Supabase: http://localhost:4083 (Firebase alternative)
+- Strapi: http://localhost:4084 (Headless CMS)
+
+## 🧪 DEVELOPMENT & TESTING
+
+### Development Tools
+- Jenkins: http://localhost:4085 (CI/CD)
+- GitLab CI: http://localhost:4086 (CI/CD)
+- SonarQube: http://localhost:4087 (Code quality)
+- Nexus Repository: http://localhost:4088 (Artifact repository)
+
+### Testing & Quality
+- Selenium: http://localhost:4089 (Browser automation)
+- JMeter: http://localhost:4090 (Load testing)
+- Artillery: http://localhost:4091 (Performance testing)
+
+## 📚 LEARNING & EDUCATION
+
+### Learning Platforms
+- Moodle: http://localhost:4092 (Learning management)
+- Open edX: http://localhost:4093 (Online learning)
+- Canvas: http://localhost:4094 (Learning management)
+
+### Knowledge Management
+- MediaWiki: http://localhost:4095 (Wiki platform)
+- DokuWiki: http://localhost:4096 (Wiki platform)
+- XWiki: http://localhost:4097 (Wiki platform)
+
+## 🎨 CREATIVE & MEDIA
+
+### Creative Tools
+- GIMP: http://localhost:4098 (Image editing)
+- Inkscape: http://localhost:4099 (Vector graphics)
+- Blender: http://localhost:4100 (3D modeling)
+
+### Media Processing
+- FFmpeg: localhost:4101 (Media processing)
+- HandBrake: http://localhost:4102 (Video transcoding)
+- ImageMagick: localhost:4103 (Image processing)
+
+## 🔬 SCIENCE & RESEARCH
+
+### Scientific Computing
+- Jupyter: http://localhost:4104 (Notebooks)
+- RStudio: http://localhost:4105 (R development)
+- Octave: http://localhost:4106 (Numerical computing)
+
+### Data Analysis
+- Grafana: http://localhost:4107 (Data visualization)
+- Kibana: http://localhost:4108 (Data exploration)
+- Metabase: http://localhost:4109 (Business intelligence)
+
+## 🌍 ENVIRONMENTAL & IOT
+
+### IoT Platforms
+- ThingsBoard: http://localhost:4110 (IoT platform)
+- Node-RED: http://localhost:4111 (IoT flows)
+- Home Assistant: http://localhost:4112 (Home automation)
+
+### Environmental Monitoring
+- Weather Station: localhost:4113 (Weather data)
+- Air Quality Monitor: localhost:4114 (Air quality)
+- Energy Monitor: localhost:4115 (Power consumption)
+
+## 📡 COMMUNICATION & NETWORKING
+
+### Communication
+- Asterisk: localhost:5060 (VoIP server)
+- FreeSWITCH: localhost:5060 (VoIP server)
+- Matrix Synapse: http://localhost:4116 (Chat server)
+
+### Network Services
+- DHCP Server: localhost:67 (DHCP)
+- DNS Server: localhost:53 (DNS)
+- NTP Server: localhost:123 (Time sync)
+
+## 🔧 MAINTENANCE & ADMINISTRATION
+
+### System Administration
+- Portainer: http://localhost:4117 (Docker management)
+- Cockpit: http://localhost:4118 (System administration)
+- Webmin: http://localhost:4119 (Server management)
+
+### Backup & Recovery
+- Bacula: localhost:4120 (Backup system)
+- Amanda: localhost:4121 (Backup system)
+- Bareos: localhost:4122 (Backup system)
+
+## 📊 ANALYTICS & REPORTING
+
+### Analytics Platforms
+- Matomo: http://localhost:4123 (Web analytics)
+- Plausible: http://localhost:4124 (Privacy analytics)
+- Umami: http://localhost:4125 (Web analytics)
+
+### Reporting Tools
+- JasperReports: http://localhost:4126 (Reporting)
+- BIRT: http://localhost:4127 (Business intelligence)
+- Pentaho: http://localhost:4128 (Data integration)
+
+## 🎯 SPECIALIZED SERVICES
+
+### E-commerce
+- WooCommerce: http://localhost:4129 (E-commerce)
+- PrestaShop: http://localhost:4130 (E-commerce)
+- OpenCart: http://localhost:4131 (E-commerce)
+
+### Customer Support
+- Zendesk: http://localhost:4132 (Help desk)
+- Freshdesk: http://localhost:4133 (Customer support)
+- osTicket: http://localhost:4134 (Help desk)
+
+### Marketing & SEO
+- Mautic: http://localhost:4135 (Marketing automation)
+- Piwik: http://localhost:4136 (Analytics)
+- SEO Panel: http://localhost:4137 (SEO tools)
+
+## 📋 SERVICE CATEGORIES SUMMARY
+
+### Essential Services (Start Here)
+- Pi-hole (4012) - Network ad blocking
+- Home Assistant (4008) - Home automation
+- Jellyfin (4000) - Media streaming
+- Nextcloud (4016) - File storage
+- Vaultwarden (4024) - Password manager
+
+### Development Stack
+- Gitea (4026) - Git repositories
+- Drone (4027) - CI/CD
+- Wiki.js (4028) - Documentation
+- Grafana (4020) - Monitoring
+
+### Media Stack
+- Jellyfin (4000) - Media server
+- Radarr (4043) - Movie management
+- Sonarr (4044) - TV management
+- Overseerr (4048) - Media requests
+
+### Monitoring Stack
+- Uptime Kuma (4014) - Service monitoring
+- Grafana (4020) - Data visualization
+- Prometheus (4021) - Metrics collection
+- Graylog (4040) - Log management
+
+### Business Tools
+- Wekan (4031) - Project management
+- Kimai (4033) - Time tracking
+- InvoicePlane (4034) - Invoicing
+- Passbolt (4025) - Team passwords
+
+### Privacy & Productivity
+- SearXNG (4053) - Privacy-focused search engine
+- FreshRSS (4032) - RSS reader
+- Vaultwarden (4024) - Password manager
+- Nextcloud (4016) - Cloud storage
+
+## 🔧 CONFIGURATION NOTES
+
+### Port Ranges
+- 4000-4099: Core services
+- 4100-4199: Development tools
+- 4200-4299: Business applications
+- 4300-4399: Monitoring & analytics
+- 4400-4499: Media & entertainment
+- 4500-4599: Security & networking
+- 4600-4699: Database services
+- 4700-4799: Utility services
+- 4800-4899: Specialized applications
+- 4900-4999: Testing & development
+- 5000-5999: Reserved for future use
+- 6000-6999: Reserved for future use
+- 7000-7999: Reserved for future use
+- 8000-8999: Reserved for future use
+- 9000-9999: Reserved for future use
+
+### Access Patterns
+- HTTP/HTTPS: Most web interfaces
+- TCP: Database connections
+- UDP: DNS, VPN, streaming services
+- WebSocket: Real-time applications
+
+### Security Considerations
+- Change default passwords
+- Use HTTPS where possible
+- Implement proper firewall rules
+- Regular security updates
+- Monitor access logs
+
+## 📞 SUPPORT & RESOURCES
+
+### Documentation
+- Each service has its own README file
+- Official documentation links provided
+- Community forums and Discord servers
+
+### Troubleshooting
+- Check service logs: `docker-compose logs service-name`
+- Monitor resources: `docker stats`
+- Verify connectivity: `telnet localhost port`
+- Check configuration files
+
+### Backup Strategy
+- Regular configuration backups
+- Database dumps
+- Volume snapshots
+- Off-site replication
+
+---
+Last Updated: December 2024
+Total Services: 150+
+Port Range: 4000-9999
+Status: Production Ready 

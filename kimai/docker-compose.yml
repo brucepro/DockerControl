@@ -1,0 +1,39 @@
+
+services:
+  kimai:
+    image: kimai/kimai2:latest
+    container_name: kimai
+    restart: unless-stopped
+    ports:
+      - "4033:8001"
+    volumes:
+      - ./data:/opt/kimai/var/data
+    environment:
+      - APP_ENV=prod
+      - DATABASE_URL=mysql://kimai:kimai@kimai-db:3306/kimai
+      - TZ=UTC
+    depends_on:
+      - kimai-db
+    networks:
+      - kimai-network
+
+  kimai-db:
+    image: mysql:8.0
+    container_name: kimai-db
+    restart: unless-stopped
+    ports:
+      - "3309:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=kimai
+      - MYSQL_USER=kimai
+      - MYSQL_PASSWORD=kimai
+      - MYSQL_ROOT_PASSWORD=kimai
+      - TZ=UTC
+    networks:
+      - kimai-network
+
+networks:
+  kimai-network:
+    driver: bridge 

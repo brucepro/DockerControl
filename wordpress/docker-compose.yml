@@ -1,0 +1,63 @@
+services:
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress
+    restart: unless-stopped
+    ports:
+      - "4053:80"
+    volumes:
+      - ./wordpress/html:/var/www/html
+    environment:
+      - WORDPRESS_DB_HOST=wordpress-db
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_TABLE_PREFIX=wp_
+      - TZ=UTC
+    depends_on:
+      - wordpress-db
+    networks:
+      - wordpress_network
+
+  wordpress-db:
+    image: mysql:8.0
+    container_name: wordpress-db
+    restart: unless-stopped
+    ports:
+      - "3312:3306"
+    volumes:
+      - ./wordpress/db:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+      - MYSQL_ROOT_PASSWORD=wordpress
+      - TZ=UTC
+    networks:
+      - wordpress_network
+
+  # Optional: phpMyAdmin for database management
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "4054:80"
+    environment:
+      - PMA_HOST=wordpress-db
+      - PMA_PORT=3306
+      - PMA_USER=wordpress
+      - PMA_PASSWORD=wordpress
+      - TZ=UTC
+    depends_on:
+      - wordpress-db
+    networks:
+      - wordpress_network
+
+volumes:
+  wordpress_html:
+  wordpress_db:
+
+networks:
+  wordpress_network:
+    driver: bridge 

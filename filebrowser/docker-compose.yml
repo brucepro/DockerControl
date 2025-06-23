@@ -1,0 +1,20 @@
+
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - "4017:80"
+    volumes:
+      - ./config:/config
+      - ./storage:/srv
+    environment:
+      - PUID=1000
+      - PGID=1000
+    networks:
+      - filebrowser-network
+
+networks:
+  filebrowser-network:
+    driver: bridge 

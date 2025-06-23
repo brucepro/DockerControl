@@ -1,0 +1,21 @@
+
+services:
+  duplicati:
+    image: duplicati/duplicati:latest
+    container_name: duplicati
+    restart: unless-stopped
+    ports:
+      - "4018:8200"
+    volumes:
+      - ./config:/data
+      - ./storage:/source
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=UTC
+      - CLI_ARGS=--webservice-interface=any
+    networks:
+      - duplicati-network
+
+networks:
+  duplicati-network:
+    driver: bridge 

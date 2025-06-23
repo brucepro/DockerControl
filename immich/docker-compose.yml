@@ -1,0 +1,56 @@
+
+services:
+  immich:
+    image: ghcr.io/immich-app/immich-server:latest
+    container_name: immich-server
+    restart: unless-stopped
+    ports:
+      - "4004:3001"
+    volumes:
+      - ./upload:/usr/src/app/upload
+      - ./data:/usr/src/app/data
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://immich:immich@immich-db:5432/immich
+      - REDIS_HOSTNAME=immich-redis
+      - REDIS_PORT=6379
+      - REDIS_DBINDEX=0
+      - REDIS_PASSWORD=
+      - JWT_SECRET=your-jwt-secret
+      - TZ=UTC
+    depends_on:
+      - immich-db
+      - immich-redis
+    networks:
+      - immich-network
+
+  immich-db:
+    image: postgres:15
+    container_name: immich-db
+    restart: unless-stopped
+    ports:
+      - "5435:5432"
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=immich
+      - POSTGRES_USER=immich
+      - POSTGRES_PASSWORD=immich
+      - TZ=UTC
+    networks:
+      - immich-network
+
+  immich-redis:
+    image: redis:7-alpine
+    container_name: immich-redis
+    restart: unless-stopped
+    ports:
+      - "6382:6379"
+    volumes:
+      - ./redis:/data
+    networks:
+      - immich-network
+
+networks:
+  immich-network:
+    driver: bridge 

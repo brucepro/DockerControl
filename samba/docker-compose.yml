@@ -1,0 +1,27 @@
+services:
+  samba:
+    image: dperson/samba:latest
+    container_name: samba
+    restart: unless-stopped
+    ports:
+      - "139:139"
+      - "445:445"
+    volumes:
+      - ./config:/etc/samba
+      - ./shares:/shares
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=UTC
+      - USERID=1000
+      - GROUPID=1000
+    command: '-u "admin;password" -s "public;/shares/public;yes;no;yes;all;none;none" -s "private;/shares/private;yes;no;no;all;admin;none"'
+    networks:
+      - samba_network
+
+volumes:
+  samba_config:
+  samba_shares:
+
+networks:
+  samba_network:
+    driver: bridge 

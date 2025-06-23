@@ -1,0 +1,317 @@
+services:
+  # Network Storage - Samba
+  samba:
+    image: dperson/samba:latest
+    container_name: samba
+    restart: unless-stopped
+    ports:
+      - "139:139"
+      - "445:445"
+    volumes:
+      - ./samba/config:/etc/samba
+      - ./storage:/shared
+      - ./storage/public:/shared/public
+      - ./storage/private:/shared/private
+      - ./storage/media:/shared/media
+    environment:
+      - TZ=UTC
+      - USERID=1000
+      - GROUPID=1000
+    command: >
+      -u "admin;password"
+      -u "user1;password1"
+      -s "public;/shared/public;yes;no;yes;all;none;none"
+      -s "private;/shared/private;yes;no;yes;admin;none;none"
+      -s "media;/shared/media;yes;no;yes;all;none;none"
+      -p
+    networks:
+      - storage_network
+
+  # Cloud Storage - Nextcloud
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nextcloud/html:/var/www/html
+      - ./nextcloud/config:/var/www/html/config
+      - ./nextcloud/data:/var/www/html/data
+      - ./nextcloud/apps:/var/www/html/custom_apps
+      - ./nextcloud/themes:/var/www/html/custom_themes
+      - ./storage:/var/www/html/external_storage
+    environment:
+      - MYSQL_HOST=nextcloud-db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud_pwd
+      - NEXTCLOUD_ADMIN_USER=admin
+      - NEXTCLOUD_ADMIN_PASSWORD=adminpassword
+      - TZ=UTC
+    depends_on:
+      - nextcloud-db
+      - nextcloud-redis
+    networks:
+      - storage_network
+
+  nextcloud-db:
+    image: mysql:8.0
+    container_name: nextcloud-db
+    restart: unless-stopped
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./nextcloud/db/data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud_pwd
+      - MYSQL_ROOT_PASSWORD=nextcloud_pwd
+      - TZ=UTC
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - storage_network
+
+  nextcloud-redis:
+    image: redis:7-alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./nextcloud/redis/data:/data
+    networks:
+      - storage_network
+
+  # File Management - File Browser
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - "8083:80"
+    volumes:
+      - ./filebrowser/config:/config
+      - ./storage:/srv
+    environment:
+      - PUID=1000
+      - PGID=1000
+    networks:
+      - storage_network
+
+  # Backup Solution - Duplicati
+  duplicati:
+    image: duplicati/duplicati:latest
+    container_name: duplicati
+    restart: unless-stopped
+    ports:
+      - "8200:8200"
+    volumes:
+      - ./duplicati/config:/data
+      - ./storage:/source
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=UTC
+      - CLI_ARGS=--webservice-interface=any
+    networks:
+      - storage_network
+
+  # Alternative Backup - Rclone
+  rclone:
+    image: rclone/rclone:latest
+    container_name: rclone
+    restart: unless-stopped
+    ports:
+      - "8084:8080"
+    volumes:
+      - ./rclone/config:/config/rclone
+      - ./storage:/data
+    environment:
+      - TZ=UTC
+    command: rclone rcd --rc-web-gui --rc-web-gui-no-open-browser --rc-addr :8080
+    networks:
+      - storage_network
+
+  # Media Management - Plex
+  plex:
+    image: plexinc/pms-docker:latest
+    container_name: plex
+    restart: unless-stopped
+    ports:
+      - "32400:32400"
+      - "32400:32400/udp"
+      - "32469:32469"
+      - "32469:32469/udp"
+      - "8324:8324"
+      - "1900:1900/udp"
+      - "3005:3005"
+      - "5353:5353/udp"
+      - "8324:8324/udp"
+    volumes:
+      - ./plex/config:/config
+      - ./plex/transcode:/transcode
+      - ./storage/media/movies:/movies:ro
+      - ./storage/media/tv:/tv:ro
+      - ./storage/media/music:/music:ro
+      - ./storage/media/photos:/photos:ro
+    environment:
+      - PLEX_CLAIM=your-plex-claim-token
+      - TZ=UTC
+      - PUID=1000
+      - PGID=1000
+    hostname: plex-server
+    networks:
+      - storage_network
+
+  # Media Management - Emby
+  emby:
+    image: emby/embyserver:latest
+    container_name: emby
+    restart: unless-stopped
+    ports:
+      - "8096:8096"
+      - "8920:8920"
+    volumes:
+      - ./emby/config:/config
+      - ./storage/media:/media:ro
+    environment:
+      - TZ=UTC
+      - PUID=1000
+      - PGID=1000
+    networks:
+      - storage_network
+
+  # Photo Management - PhotoPrism
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    restart: unless-stopped
+    ports:
+      - "2342:2342"
+    volumes:
+      - ./photoprism/storage:/photoprism/storage
+      - ./photoprism/import:/photoprism/import
+      - ./photoprism/backup:/photoprism/backup
+    environment:
+      - PHOTOPRISM_ADMIN_PASSWORD=adminpassword
+      - PHOTOPRISM_DATABASE_DRIVER=sqlite
+      - PHOTOPRISM_UPLOAD_NSFW=true
+      - PHOTOPRISM_DISABLE_CHOWN=true
+      - PHOTOPRISM_IMPORT_PATH=/photoprism/import
+      - PHOTOPRISM_STORAGE_PATH=/photoprism/storage
+      - PHOTOPRISM_BACKUP_PATH=/photoprism/backup
+      - TZ=UTC
+    user: "1000:1000"
+    networks:
+      - storage_network
+
+  # Document Management - Paperless-ngx
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    ports:
+      - "8010:8000"
+    volumes:
+      - ./paperless/data:/usr/src/paperless/data
+      - ./paperless/media:/usr/src/paperless/media
+      - ./paperless/export:/usr/src/paperless/export
+      - ./paperless/consume:/usr/src/paperless/consume
+    environment:
+      - PAPERLESS_REDIS=redis://paperless-redis:6379
+      - PAPERLESS_DBHOST=paperless-db
+      - PAPERLESS_DBPORT=5432
+      - PAPERLESS_DBNAME=paperless
+      - PAPERLESS_DBUSER=paperless
+      - PAPERLESS_DBPASS=paperless_pwd
+      - PAPERLESS_SECRET_KEY=your-secret-key-here
+      - PAPERLESS_TIME_ZONE=UTC
+      - PAPERLESS_ADMIN_USER=admin
+      - PAPERLESS_ADMIN_PASSWORD=adminpassword
+    depends_on:
+      - paperless-db
+      - paperless-redis
+    networks:
+      - storage_network
+
+  paperless-db:
+    image: postgres:15
+    container_name: paperless-db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./paperless/db/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=paperless
+      - POSTGRES_USER=paperless
+      - POSTGRES_PASSWORD=paperless_pwd
+      - TZ=UTC
+    networks:
+      - storage_network
+
+  paperless-redis:
+    image: redis:7-alpine
+    container_name: paperless-redis
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    volumes:
+      - ./paperless/redis/data:/data
+    networks:
+      - storage_network
+
+  # Music Streaming - Airsonic
+  airsonic:
+    image: airsonic/airsonic:latest
+    container_name: airsonic
+    restart: unless-stopped
+    ports:
+      - "4040:4040"
+    volumes:
+      - ./airsonic/data:/airsonic/data
+      - ./airsonic/music:/airsonic/music
+      - ./airsonic/playlists:/airsonic/playlists
+      - ./airsonic/podcasts:/airsonic/podcasts
+    environment:
+      - TZ=UTC
+      - PUID=1000
+      - PGID=1000
+    networks:
+      - storage_network
+
+  # Ebook Management - Calibre
+  calibre:
+    image: linuxserver/calibre:latest
+    container_name: calibre
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+      - "8082:8081"
+    volumes:
+      - ./calibre/config:/config
+      - ./storage/books:/books
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    networks:
+      - storage_network
+
+volumes:
+  samba_config:
+  nextcloud_data:
+  filebrowser_config:
+  duplicati_config:
+  rclone_config:
+  plex_config:
+  emby_config:
+  photoprism_data:
+  paperless_data:
+  airsonic_data:
+  calibre_config:
+
+networks:
+  storage_network:
+    driver: bridge 

@@ -1,0 +1,37 @@
+
+services:
+  freshrss:
+    image: freshrss/freshrss:latest
+    container_name: freshrss
+    hostname: freshrss
+    restart: unless-stopped
+    ports:
+      - "4032:80"
+    environment:
+      TZ: UTC
+      CRON_MIN: '*/30'
+    volumes:
+      - ./data:/var/www/FreshRSS/data
+      - ./extensions:/var/www/FreshRSS/extensions
+    depends_on:
+      - freshrss-db
+    networks:
+      - freshrss-network
+
+  freshrss-db:
+    image: postgres:15-alpine
+    container_name: freshrss-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: freshrss
+      POSTGRES_USER: freshrss
+      POSTGRES_PASSWORD: freshrss_password
+      TZ: UTC
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    networks:
+      - freshrss-network
+
+networks:
+  freshrss-network:
+    driver: bridge 

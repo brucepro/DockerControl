@@ -1,0 +1,19 @@
+
+services:
+  unbound:
+    image: mvance/unbound:latest
+    container_name: unbound
+    restart: unless-stopped
+    ports:
+      - "5335:53/tcp"
+      - "5335:53/udp"
+    volumes:
+      - ./config:/opt/unbound/etc/unbound
+    environment:
+      - TZ=UTC
+    networks:
+      - unbound-network
+
+networks:
+  unbound-network:
+    driver: bridge 

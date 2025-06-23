@@ -1,0 +1,26 @@
+
+services:
+  netdata:
+    image: netdata/netdata:latest
+    container_name: netdata
+    restart: unless-stopped
+    ports:
+      - "4022:19999"
+    volumes:
+      - ./config:/etc/netdata
+      - ./data:/var/lib/netdata
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/passwd:/host/etc/passwd:ro
+    environment:
+      - TZ=UTC
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    networks:
+      - netdata-network
+
+networks:
+  netdata-network:
+    driver: bridge 

@@ -1,0 +1,97 @@
+# urlwatch configuration file
+# Main settings for website monitoring
+
+# Database settings
+database:
+  type: sqlite
+  path: /data/urlwatch.db
+
+# Cache settings
+cache:
+  path: /data/cache
+
+# Reports settings
+reports:
+  path: /data/reports
+
+# Web server settings
+web_server:
+  host: 0.0.0.0
+  port: 8080
+  base_url: http://localhost:8080
+
+# Email notification settings
+email:
+  enabled: true
+  method: smtp
+  smtp:
+    host: smtp.gmail.com
+    port: 587
+    user: your-email@gmail.com
+    password: your-app-password
+    from: your-email@gmail.com
+    to: recipient@example.com
+    tls: true
+  subject: "Website Change Detected: {name}"
+  body: |
+    Website change detected for: {name}
+    URL: {url}
+    Time: {timestamp}
+    
+    Changes:
+    {diff}
+
+# Slack notification settings (optional)
+slack:
+  enabled: false
+  webhook_url: your-slack-webhook-url
+  channel: #monitoring
+  username: urlwatch-bot
+
+# Discord notification settings (optional)
+discord:
+  enabled: false
+  webhook_url: your-discord-webhook-url
+  username: urlwatch-bot
+
+# Telegram notification settings (optional)
+telegram:
+  enabled: false
+  bot_token: your-telegram-bot-token
+  chat_id: your-telegram-chat-id
+
+# Monitoring settings
+monitoring:
+  check_interval: 300  # Check every 5 minutes
+  max_age: 3600  # Default max age for URLs
+  timeout: 30  # Request timeout in seconds
+  retry_count: 3  # Number of retries on failure
+  retry_delay: 60  # Delay between retries in seconds
+
+# Filter settings
+filters:
+  html2text:
+    enabled: true
+    method: html2text
+  css:
+    enabled: true
+  json:
+    enabled: true
+  xpath:
+    enabled: true
+
+# Screenshot settings (requires screenshot service)
+screenshot:
+  enabled: false
+  service_url: http://screenshot-service:4444
+  viewport:
+    width: 1920
+    height: 1080
+  wait_time: 5  # Wait time for JavaScript to load
+
+# Logging settings
+logging:
+  level: INFO
+  file: /data/urlwatch.log
+  max_size: 10MB
+  backup_count: 5 

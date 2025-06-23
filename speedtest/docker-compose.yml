@@ -1,0 +1,18 @@
+
+services:
+  speedtest:
+    image: linuxserver/speedtest:latest
+    container_name: speedtest
+    restart: unless-stopped
+    ports:
+      - "4038:8080"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    networks:
+      - speedtest-network
+
+networks:
+  speedtest-network:
+    driver: bridge 

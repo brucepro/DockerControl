@@ -1,0 +1,22 @@
+
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    restart: unless-stopped
+    ports:
+      - "4005:4533"
+    volumes:
+      - ./data:/data
+      - ./music:/music:ro
+    environment:
+      - ND_SCANSCHEDULE=1h
+      - ND_LOGLEVEL=info
+      - ND_BASEURL=
+      - TZ=UTC
+    networks:
+      - navidrome-network
+
+networks:
+  navidrome-network:
+    driver: bridge 

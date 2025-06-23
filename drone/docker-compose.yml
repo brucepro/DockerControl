@@ -1,0 +1,41 @@
+
+services:
+  drone-server:
+    image: drone/drone:latest
+    container_name: drone-server
+    restart: unless-stopped
+    ports:
+      - "4027:80"
+    volumes:
+      - ./data:/data
+    environment:
+      - DRONE_GITHUB_CLIENT_ID=your-github-client-id
+      - DRONE_GITHUB_CLIENT_SECRET=your-github-client-secret
+      - DRONE_RPC_SECRET=your-rpc-secret
+      - DRONE_SERVER_HOST=localhost:4027
+      - DRONE_SERVER_PROTO=http
+      - TZ=UTC
+    networks:
+      - drone-network
+
+  drone-runner:
+    image: drone/drone-runner-docker:latest
+    container_name: drone-runner
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=drone-server
+      - DRONE_RPC_SECRET=your-rpc-secret
+      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_NAME=drone-runner
+      - TZ=UTC
+    depends_on:
+      - drone-server
+    networks:
+      - drone-network
+
+networks:
+  drone-network:
+    driver: bridge 

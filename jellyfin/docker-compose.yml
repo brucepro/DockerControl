@@ -1,0 +1,53 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    ports:
+      - "4000:8096"
+      - "8920:8920"  # DLNA
+    volumes:
+      - ./jellyfin/config:/config
+      - ./jellyfin/cache:/cache
+      - ./jellyfin/logs:/config/log
+      - ./media/movies:/media/movies:ro
+      - ./media/tv:/media/tv:ro
+      - ./media/music:/media/music:ro
+      - ./media/photos:/media/photos:ro
+    environment:
+      - JELLYFIN_PublishedServerUrl=http://localhost:4000
+      - JELLYFIN_FFmpeg=/usr/lib/jellyfin-ffmpeg/ffmpeg
+      - TZ=UTC
+    user: "1000:1000"
+    networks:
+      - jellyfin_network
+
+  # Optional: Jellyfin with hardware acceleration
+  jellyfin-hw:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin-hw
+    restart: unless-stopped
+    ports:
+      - "4001:8096"
+      - "8921:8920"
+    volumes:
+      - ./jellyfin-hw/config:/config
+      - ./jellyfin-hw/cache:/cache
+      - ./media:/media:ro
+      - /dev/dri:/dev/dri  # Hardware acceleration
+    environment:
+      - JELLYFIN_PublishedServerUrl=http://localhost:4001
+      - TZ=UTC
+    devices:
+      - /dev/dri:/dev/dri
+    user: "1000:1000"
+    networks:
+      - jellyfin_network
+
+volumes:
+  jellyfin_config:
+  jellyfin_cache:
+
+networks:
+  jellyfin_network:
+    driver: bridge 

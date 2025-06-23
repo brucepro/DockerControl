@@ -1,0 +1,42 @@
+
+services:
+  wikijs:
+    image: requarks/wiki:latest
+    container_name: wikijs
+    restart: unless-stopped
+    ports:
+      - "4028:3000"
+    volumes:
+      - ./data:/var/wiki
+    environment:
+      - DB_TYPE=postgres
+      - DB_HOST=wikijs-db:5432
+      - DB_PORT=5432
+      - DB_NAME=wiki
+      - DB_USER=wiki
+      - DB_PASS=wiki
+      - TZ=UTC
+    depends_on:
+      - wikijs-db
+    networks:
+      - wikijs-network
+
+  wikijs-db:
+    image: postgres:15
+    container_name: wikijs-db
+    restart: unless-stopped
+    ports:
+      - "5438:5432"
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=wiki
+      - POSTGRES_USER=wiki
+      - POSTGRES_PASSWORD=wiki
+      - TZ=UTC
+    networks:
+      - wikijs-network
+
+networks:
+  wikijs-network:
+    driver: bridge 

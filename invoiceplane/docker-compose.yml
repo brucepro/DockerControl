@@ -1,0 +1,41 @@
+
+services:
+  invoiceplane:
+    image: invoiceplane/invoiceplane:latest
+    container_name: invoiceplane
+    restart: unless-stopped
+    ports:
+      - "4034:80"
+    volumes:
+      - ./data:/var/www/html/storage
+    environment:
+      - DB_HOST=invoiceplane-db
+      - DB_NAME=invoiceplane
+      - DB_USER=invoiceplane
+      - DB_PASS=invoiceplane
+      - TZ=UTC
+    depends_on:
+      - invoiceplane-db
+    networks:
+      - invoiceplane-network
+
+  invoiceplane-db:
+    image: mysql:8.0
+    container_name: invoiceplane-db
+    restart: unless-stopped
+    ports:
+      - "3310:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=invoiceplane
+      - MYSQL_USER=invoiceplane
+      - MYSQL_PASSWORD=invoiceplane
+      - MYSQL_ROOT_PASSWORD=invoiceplane
+      - TZ=UTC
+    networks:
+      - invoiceplane-network
+
+networks:
+  invoiceplane-network:
+    driver: bridge 

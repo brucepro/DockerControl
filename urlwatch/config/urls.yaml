@@ -1,0 +1,40 @@
+# Example URLs to monitor
+# Add your websites here
+
+# Monitor a news website
+- name: "Example News Site"
+  url: "https://example.com"
+  filter: "css:.main-content"
+  diff_filter: "html2text"
+  headers:
+    User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+  max_age: 3600  # Check every hour
+
+# Monitor a product page for price changes
+- name: "Product Price Monitor"
+  url: "https://example-store.com/product/123"
+  filter: "css:.price"
+  diff_filter: "html2text"
+  max_age: 1800  # Check every 30 minutes
+
+# Monitor a blog for new posts
+- name: "Blog Updates"
+  url: "https://example-blog.com"
+  filter: "css:.post-list"
+  diff_filter: "html2text"
+  max_age: 7200  # Check every 2 hours
+
+# Monitor an API endpoint
+- name: "API Status"
+  url: "https://api.example.com/status"
+  filter: "json"
+  max_age: 300  # Check every 5 minutes
+
+# Monitor with JavaScript rendering (requires screenshot service)
+- name: "JavaScript Heavy Site"
+  url: "https://spa.example.com"
+  filter: "css:.dynamic-content"
+  diff_filter: "html2text"
+  max_age: 3600
+  # Uncomment to use screenshot service
+  # screenshot: true 

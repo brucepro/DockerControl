@@ -1,0 +1,48 @@
+
+services:
+  rocketchat:
+    image: registry.rocket.chat/rocketchat/rocket.chat:latest
+    container_name: rocketchat
+    restart: unless-stopped
+    ports:
+      - "4009:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URL=mongodb://mongo:27017/rocketchat?replicaSet=rs01
+      - MONGO_OPLOG_URL=mongodb://mongo:27017/local?replicaSet=rs01
+      - ROOT_URL=http://localhost:4009
+      - PORT=3000
+    depends_on:
+      - mongo
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - rocketchat-network
+
+  mongo:
+    image: mongo:6
+    container_name: rocketchat-mongo
+    restart: unless-stopped
+    command: mongod --oplogSize 128 --replSet rs01
+    volumes:
+      - ./mongo:/data/db
+    networks:
+      - rocketchat-network
+
+  mongo-init:
+    image: mongo:6
+    container_name: rocketchat-mongo-init
+    restart: "no"
+    depends_on:
+      - mongo
+    command: >
+      bash -c
+        "sleep 10 &&
+         mongosh --host mongo --eval 'rs.initiate({_id: \"rs01\", members: [{_id: 0, host: \"mongo\"}]})' &&
+         mongosh --host mongo --eval 'rs.status()'"
+    networks:
+      - rocketchat-network
+
+networks:
+  rocketchat-network:
+    driver: bridge 

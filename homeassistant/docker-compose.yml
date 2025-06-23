@@ -1,0 +1,154 @@
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    ports:
+      - "4008:8123"
+    volumes:
+      - ./homeassistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    environment:
+      - TZ=UTC
+    privileged: true
+    network_mode: host
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+      - /dev/ttyUSB0:/dev/ttyUSB0
+
+  # Optional: Home Assistant with Supervisor
+  homeassistant-supervised:
+    image: ghcr.io/home-assistant/qemux86-64-homeassistant:stable
+    container_name: homeassistant-supervised
+    restart: unless-stopped
+    ports:
+      - "4009:8123"
+    volumes:
+      - ./homeassistant-supervised:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    environment:
+      - TZ=UTC
+    privileged: true
+    network_mode: host
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+      - /dev/ttyUSB0:/dev/ttyUSB0
+
+  # MQTT Broker for Home Assistant
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    environment:
+      - TZ=UTC
+    networks:
+      - homeassistant_network
+
+  # Zigbee2MQTT for Zigbee devices
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:latest
+    container_name: zigbee2mqtt
+    restart: unless-stopped
+    ports:
+      - "4011:8080"
+    volumes:
+      - ./zigbee2mqtt/data:/app/data
+      - /dev/ttyACM0:/dev/ttyACM0
+    environment:
+      - TZ=UTC
+    depends_on:
+      - mosquitto
+    networks:
+      - homeassistant_network
+
+  # ESPHome for ESP8266/ESP32 devices
+  esphome:
+    image: esphome/esphome:latest
+    container_name: esphome
+    restart: unless-stopped
+    ports:
+      - "4010:6052"
+    volumes:
+      - ./esphome/config:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=UTC
+    privileged: true
+    networks:
+      - homeassistant_network
+
+  # Node-RED for automation flows
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    restart: unless-stopped
+    ports:
+      - "4009:1880"
+    volumes:
+      - ./nodered/data:/data
+    environment:
+      - TZ=UTC
+    networks:
+      - homeassistant_network
+
+  # InfluxDB for Home Assistant data storage
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb/data:/var/lib/influxdb2
+      - ./influxdb/config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
+      - DOCKER_INFLUXDB_INIT_ORG=homeassistant
+      - DOCKER_INFLUXDB_INIT_BUCKET=homeassistant
+      - TZ=UTC
+    networks:
+      - homeassistant_network
+
+  # Grafana for Home Assistant dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "4020:3000"
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - TZ=UTC
+    depends_on:
+      - influxdb
+    networks:
+      - homeassistant_network
+
+volumes:
+  homeassistant_config:
+  mosquitto_data:
+  zigbee2mqtt_data:
+  esphome_config:
+  nodered_data:
+  influxdb_data:
+  grafana_data:
+
+networks:
+  homeassistant_network:
+    driver: bridge 

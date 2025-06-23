@@ -1,0 +1,31 @@
+
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    ports:
+      - "4054:8080"
+    environment:
+      - INSTANCE_NAME=SearXNG
+      - BASE_URL=http://localhost:4054/
+      - REDIS_URL=redis://searxng-redis:6379/0
+    volumes:
+      - ./searxng:/etc/searxng
+    depends_on:
+      - searxng-redis
+    networks:
+      - searxng-network
+
+  searxng-redis:
+    image: redis:7-alpine
+    container_name: searxng-redis
+    restart: unless-stopped
+    volumes:
+      - ./redis:/data
+    networks:
+      - searxng-network
+
+networks:
+  searxng-network:
+    driver: bridge 

@@ -1,0 +1,40 @@
+services:
+  puppeteer:
+    image: ghcr.io/puppeteer/puppeteer:latest
+    container_name: puppeteer
+    restart: unless-stopped
+    ports:
+      - "4057:3000"
+    volumes:
+      - ./puppeteer/app:/app
+    environment:
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+      - TZ=UTC
+    depends_on:
+      - chrome
+    networks:
+      - puppeteer_network
+
+  chrome:
+    image: selenium/standalone-chrome:latest
+    container_name: chrome
+    restart: unless-stopped
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      - SE_NODE_MAX_SESSIONS=4
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - TZ=UTC
+    networks:
+      - puppeteer_network
+
+volumes:
+  puppeteer_app:
+
+networks:
+  puppeteer_network:
+    driver: bridge 

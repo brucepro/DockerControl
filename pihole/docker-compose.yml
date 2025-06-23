@@ -1,0 +1,157 @@
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: unless-stopped
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "4012:80"
+    volumes:
+      - ./pihole/etc-pihole:/etc/pihole
+      - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+      - ./pihole/logs:/var/log
+    environment:
+      - TZ=UTC
+      - WEBPASSWORD=adminpassword
+      - PIHOLE_DNS_=8.8.8.8;8.8.4.4
+      - PIHOLE_DNS_1=1.1.1.1
+      - PIHOLE_DNS_2=1.0.0.1
+      - VIRTUAL_HOST=pihole.local
+      - PROXY_LOCATION=pihole
+      - ServerIP=192.168.1.100
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - pihole_network
+
+  # Optional: Pi-hole with Unbound DNS resolver
+  pihole-unbound:
+    image: pihole/pihole:latest
+    container_name: pihole-unbound
+    restart: unless-stopped
+    ports:
+      - "54:53/tcp"
+      - "54:53/udp"
+      - "4013:80"
+    volumes:
+      - ./pihole-unbound/etc-pihole:/etc/pihole
+      - ./pihole-unbound/etc-dnsmasq.d:/etc/dnsmasq.d
+      - ./pihole-unbound/logs:/var/log
+    environment:
+      - TZ=UTC
+      - WEBPASSWORD=adminpassword
+      - PIHOLE_DNS_=127.0.0.1#5335
+      - VIRTUAL_HOST=pihole-unbound.local
+      - PROXY_LOCATION=pihole-unbound
+      - ServerIP=192.168.1.101
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - unbound
+    networks:
+      - pihole_network
+
+  # Unbound DNS resolver
+  unbound:
+    image: mvance/unbound:latest
+    container_name: unbound
+    restart: unless-stopped
+    ports:
+      - "5335:53/tcp"
+      - "5335:53/udp"
+    volumes:
+      - ./unbound/config:/opt/unbound/etc/unbound
+    environment:
+      - TZ=UTC
+    networks:
+      - pihole_network
+
+  # Pi-hole with Cloudflare DNS
+  pihole-cloudflare:
+    image: pihole/pihole:latest
+    container_name: pihole-cloudflare
+    restart: unless-stopped
+    ports:
+      - "55:53/tcp"
+      - "55:53/udp"
+      - "4014:80"
+    volumes:
+      - ./pihole-cloudflare/etc-pihole:/etc/pihole
+      - ./pihole-cloudflare/etc-dnsmasq.d:/etc/dnsmasq.d
+      - ./pihole-cloudflare/logs:/var/log
+    environment:
+      - TZ=UTC
+      - WEBPASSWORD=adminpassword
+      - PIHOLE_DNS_=1.1.1.1;1.0.0.1
+      - VIRTUAL_HOST=pihole-cloudflare.local
+      - PROXY_LOCATION=pihole-cloudflare
+      - ServerIP=192.168.1.102
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - pihole_network
+
+  # Pi-hole with DoH (DNS over HTTPS)
+  pihole-doh:
+    image: pihole/pihole:latest
+    container_name: pihole-doh
+    restart: unless-stopped
+    ports:
+      - "56:53/tcp"
+      - "56:53/udp"
+      - "4015:80"
+    volumes:
+      - ./pihole-doh/etc-pihole:/etc/pihole
+      - ./pihole-doh/etc-dnsmasq.d:/etc/dnsmasq.d
+      - ./pihole-doh/logs:/var/log
+    environment:
+      - TZ=UTC
+      - WEBPASSWORD=adminpassword
+      - PIHOLE_DNS_=https://cloudflare-dns.com/dns-query
+      - VIRTUAL_HOST=pihole-doh.local
+      - PROXY_LOCATION=pihole-doh
+      - ServerIP=192.168.1.103
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - pihole_network
+
+  # Pi-hole with custom blocklists
+  pihole-custom:
+    image: pihole/pihole:latest
+    container_name: pihole-custom
+    restart: unless-stopped
+    ports:
+      - "57:53/tcp"
+      - "57:53/udp"
+      - "4016:80"
+    volumes:
+      - ./pihole-custom/etc-pihole:/etc/pihole
+      - ./pihole-custom/etc-dnsmasq.d:/etc/dnsmasq.d
+      - ./pihole-custom/logs:/var/log
+      - ./pihole-custom/custom-lists:/custom-lists
+    environment:
+      - TZ=UTC
+      - WEBPASSWORD=adminpassword
+      - PIHOLE_DNS_=8.8.8.8;8.8.4.4
+      - VIRTUAL_HOST=pihole-custom.local
+      - PROXY_LOCATION=pihole-custom
+      - ServerIP=192.168.1.104
+      - CUSTOM_HOSTS_FILE=/custom-lists/custom-hosts.txt
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - pihole_network
+
+volumes:
+  pihole_data:
+  pihole_unbound_data:
+  unbound_config:
+  pihole_cloudflare_data:
+  pihole_doh_data:
+  pihole_custom_data:
+
+networks:
+  pihole_network:
+    driver: bridge 
